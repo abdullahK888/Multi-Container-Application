@@ -1,0 +1,39 @@
+
+services:
+
+  backend:
+    build: ./backend_project
+    container_name: flask_app
+    env_file: .env
+    depends_on:
+      - database
+    networks:
+      - appnetwork
+
+  database:
+    image: postgres:15
+    container_name: postgres_db
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - appnetwork
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx_project/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    networks:
+      - appnetwork
+
+volumes:
+  pgdata:
+
+networks:
+  appnetwork:
+    driver: bridge
