@@ -1,32 +1,49 @@
-# Multi-Container Application
+# Multi-Container Application with CI/CD Pipeline
 
-A production-ready multi-container Flask application with Nginx reverse proxy, 
-PostgreSQL database, and Docker Compose orchestration.
+A production-style multi-container Flask application with Nginx reverse proxy,
+PostgreSQL database, automated CI/CD pipeline, and security scanning.
 
-## Tech Stack
-- **Backend:** Python Flask + Gunicorn
+## 🏗 Architecture
+Browser → Nginx (port 80) → Flask + Gunicorn (port 5000) → PostgreSQL
+
+## 🔧 Tech Stack
+- **Backend:** Python Flask + Gunicorn (WSGI)
 - **Database:** PostgreSQL
 - **Reverse Proxy:** Nginx
 - **Containerization:** Docker + Docker Compose
-- **CI/CD:** Jenkins (coming soon)
-- **Monitoring:** Grafana + Prometheus (coming soon)
+- **CI/CD:** Jenkins
+- **Security Scanning:** Trivy
+- **Authentication:** JWT
+- **Secret Management:** Environment variables (.env)
 
-## Architecture
-Browser → Nginx (port 80) → Flask App (port 5000) → PostgreSQL
+## 🚀 CI/CD Pipeline Stages
+1. ✅ Checkout — Pull latest code from GitHub
+2. ✅ File Scan — Trivy filesystem vulnerability scan
+3. ✅ Build Image — Docker image build
+4. ✅ Image Scan — Trivy image vulnerability scan
+5. ✅ Deploy — Docker Compose deployment (3 containers)
 
-## How To Run Locally
+## 🏃 Run Locally
 git clone https://github.com/abdullahK888/Multi-Container-Application
 cd Multi-Container-Application
-docker compose up --build
+cp .env.example .env  # Add your values
+docker compose up -d --build
 
-## API Endpoints
-- GET /          → App status
-- GET /health    → Health check
-- POST /login    → User authentication
+## 🔐 Environment Variables
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+DB_HOST=
+SECRET_KEY=
+ADMIN_PASSWORD=
 
-## Pipeline (Coming Soon)
-- Jenkins CI/CD pipeline
-- Trivy security scanning
-- SonarQube code quality
-- Kubernetes deployment via Minikube
-- Grafana monitoring dashboard
+## 📡 API Endpoints
+- GET  /        → App status
+- GET  /health  → Health check
+- GET  /ready   → Readiness probe
+- POST /login   → User authentication (JWT)
+
+## 🚧 Coming Soon
+- SonarQube code quality analysis
+- Kubernetes deployment (Minikube)
+- Prometheus + Grafana monitoring
