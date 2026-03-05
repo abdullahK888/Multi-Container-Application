@@ -33,7 +33,7 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=Multi-container-app \
                         -Dsonar.sources=./backend_project \
-                        -Dsonar.host.url=http://sonarqube:9000 \
+                        -Dsonar.host.url=http://172.17.0.3:9000 \
                         -Dsonar.login=sqp_7daddd0975ca38f54c689d91591bdc64de68023c
                     '''
                 }
