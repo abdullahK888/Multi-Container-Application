@@ -1,3 +1,5 @@
+Copy
+
 pipeline {
     agent any
     
@@ -18,7 +20,6 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    eval "$(minikube -p minikube docker-env)"
                     docker build -t multi-container-app:${BUILD_NUMBER} ./backend_project
                     docker tag multi-container-app:${BUILD_NUMBER} multi-container-app:latest
                 '''
@@ -29,7 +30,6 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    eval "$(minikube -p minikube docker-env)"
                     trivy image multi-container-app:${BUILD_NUMBER} --exit-code 0
                 '''
             }
@@ -63,8 +63,15 @@ pipeline {
                 sh 'kubectl apply -f k8s/configmap.yaml'
                 sh 'kubectl apply -f k8s/deployment.yaml'
                 sh 'kubectl apply -f k8s/service.yaml'
-                sh 'kubectl set image deployment/multi-container-app backend=multi-container-app:${BUILD_NUMBER}'
                 sh '''
+                    set -e
+                    if command -v minikube >/dev/null 2>&1; then
+                        minikube image load multi-container-app:${BUILD_NUMBER}
+                        kubectl set image deployment/multi-container-app backend=multi-container-app:${BUILD_NUMBER}
+                    else
+                        echo "minikube is not available in Jenkins agent; using multi-container-app:latest"
+                        kubectl set image deployment/multi-container-app backend=multi-container-app:latest
+                    fi
                     if ! kubectl rollout status deployment/multi-container-app --timeout=180s; then
                         echo "Rollout failed. Collecting Kubernetes diagnostics..."
                         kubectl get pods -l app=multi-container-app -o wide || true
