@@ -1,5 +1,3 @@
-Copy
-
 pipeline {
     agent any
     
