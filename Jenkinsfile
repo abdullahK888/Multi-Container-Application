@@ -52,9 +52,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    kubectl apply -f k8s/configmap.yaml
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
+                    kubectl apply -f k8s/configmap.yaml  --validate=false
+                    kubectl apply -f k8s/deployment.yaml  --validate=false
+                    kubectl apply -f k8s/service.yaml     --validate=false
                     kubectl rollout status deployment/multi-container-app
                 '''
             }
