@@ -51,7 +51,7 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                sh 'docker-compose up -d --build'
+                sh 'docker compose -f /var/jenkins_home/workspace/Multi-Container\\ application/docker-compose.yml up -d --build'
             }
         }
     }
