@@ -15,6 +15,7 @@ spec:
       containers:
       - name: backend
         image: multi-container-app:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
         envFrom:

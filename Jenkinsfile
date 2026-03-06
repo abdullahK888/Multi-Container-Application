@@ -16,14 +16,22 @@ pipeline {
         
         stage('Build Image') {
             steps {
-                sh 'docker build -t multi-container-app:${BUILD_NUMBER} ./backend_project'
-                sh 'docker tag multi-container-app:${BUILD_NUMBER} multi-container-app:latest'
+                sh '''
+                    set -e
+                    eval "$(minikube -p minikube docker-env)"
+                    docker build -t multi-container-app:${BUILD_NUMBER} ./backend_project
+                    docker tag multi-container-app:${BUILD_NUMBER} multi-container-app:latest
+                '''
             }
         }
         
         stage('Image Scan') {
             steps {
-                sh 'trivy image multi-container-app:${BUILD_NUMBER} --exit-code 0'
+                sh '''
+                    set -e
+                    eval "$(minikube -p minikube docker-env)"
+                    trivy image multi-container-app:${BUILD_NUMBER} --exit-code 0
+                '''
             }
         }
         
@@ -55,7 +63,17 @@ pipeline {
                 sh 'kubectl apply -f k8s/configmap.yaml'
                 sh 'kubectl apply -f k8s/deployment.yaml'
                 sh 'kubectl apply -f k8s/service.yaml'
-                sh 'kubectl rollout status deployment/multi-container-app'
+                sh 'kubectl set image deployment/multi-container-app backend=multi-container-app:${BUILD_NUMBER}'
+                sh '''
+                    if ! kubectl rollout status deployment/multi-container-app --timeout=180s; then
+                        echo "Rollout failed. Collecting Kubernetes diagnostics..."
+                        kubectl get pods -l app=multi-container-app -o wide || true
+                        kubectl describe deployment multi-container-app || true
+                        kubectl describe pods -l app=multi-container-app || true
+                        kubectl logs -l app=multi-container-app --tail=200 || true
+                        exit 1
+                    fi
+                '''
             }
         }
     }
