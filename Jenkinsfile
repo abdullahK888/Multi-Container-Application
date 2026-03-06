@@ -34,15 +34,24 @@ pipeline {
                         -Dsonar.projectKey=Multi-container-app \
                         -Dsonar.sources=./backend_project \
                         -Dsonar.host.url=http://172.17.0.3:9000 \
-                        -Dsonar.login=sqp_7daddd0975ca38f54c689d91591bdc64de68023c
+                        -Dsonar.login=sqp_7daddd0975ca38f54c689d91591bdc64de68023c \
+                        -Dsonar.python.version=3
                     '''
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
         
         stage('Deploy') {
             steps {
-                sh 'docker compose -f /var/jenkins_home/workspace/Multi-Container\\ application/docker-compose.yml up -d --build'
+                sh 'docker-compose up -d --build'
             }
         }
     }
